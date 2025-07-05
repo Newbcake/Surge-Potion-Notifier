@@ -9,7 +9,7 @@ A simple RuneLite plugin that notifies you Surge potion cooldown has expired and
 
 ## Attribution
 
-This plugin is based on Imbued Heart Notifier by JuliusAF (BSD-2-Clause license).
+This plugin is based on Imbued Heart Notifier by JuliusAF (BSD-2-Clause license).  
 Original source: https://github.com/JuliusAF/imbued-heart-notifier
 
 ## License
