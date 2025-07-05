@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.runelite.api.Client;
 import net.runelite.api.ItemContainer;
+import net.runelite.api.events.GameTick;
+import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.gameval.InventoryID;
-import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.Notifier;
 import net.runelite.client.config.ConfigManager;
@@ -60,8 +61,9 @@ public class SurgePotionNotifierPlugin extends Plugin {
 	@Inject
 	private Notifier notifier;
 
-	private int surgePotionTimer = 50;
-	private boolean cooldownDisabled = false;
+	private int surgePotionTimer = -1;
+	private boolean hasNotified = false;
+
 
 	@Override
 	protected void startUp() throws Exception {
@@ -75,28 +77,32 @@ public class SurgePotionNotifierPlugin extends Plugin {
 	}
 
 	@Subscribe
-	public void onVarbitChanged(VarbitChanged varbitChanged) {
-		int varbitId = varbitChanged.getVarbitId();
+	public void onMenuOptionClicked(MenuOptionClicked event) {
+		if (event.getMenuOption().contains("Drink") && event.getMenuTarget().contains("Surge potion")) {
+			int actualCooldown = client.getVarbitValue(VarbitID.SURGE_POTION_TIMER);
 
-		if (varbitId == VarbitID.SURGE_POTION_TIMER) {
-			surgePotionTimer = client.getVarbitValue(VarbitID.SURGE_POTION_TIMER);
-
-			if (surgePotionTimer == 0 && !cooldownDisabled) {
-				notifyUser();
-			}
-		}
-
-		if (varbitId == VarbitID.BUFF_SURGE_POTION_COOLDOWN_DISABLED) {
-			cooldownDisabled = client.getVarbitValue(VarbitID.BUFF_SURGE_POTION_COOLDOWN_DISABLED) == 1;
-
-			if (cooldownDisabled) {
-				notifyUser();
+			if (actualCooldown == 0 && surgePotionTimer <= 0) {
+				surgePotionTimer = 50;
 			}
 		}
 	}
 
+	@Subscribe
+	public void onGameTick(GameTick event) {
+			surgePotionTimer = client.getVarbitValue(VarbitID.SURGE_POTION_TIMER);
+
+		if (surgePotionTimer == 0) {
+			if (!hasNotified) {
+				notifyUser();
+				hasNotified = true;
+			}
+		} else {
+			hasNotified = false;
+		}
+	}
+
 	public boolean isSurgeOnCooldown() {
-		return surgePotionTimer > 0 && !cooldownDisabled;
+		return surgePotionTimer > 0;
 	}
 
 	@Provides
