@@ -18,7 +18,7 @@ public interface SurgePotionNotifierConfig extends Config
 	)
 	default Color getHighlightColor()
 	{
-		return new Color(245, 255, 54);
+		return new Color(0, 231, 255);
 	}
 
 	@ConfigItem(
@@ -28,7 +28,7 @@ public interface SurgePotionNotifierConfig extends Config
 			description = "Fill in the surge potion with the highlight color"
 	)
 	default boolean fillSurgePotion() {
-		return true;
+		return false;
 	}
 
 	@Range(
@@ -51,7 +51,7 @@ public interface SurgePotionNotifierConfig extends Config
 			description = "Outline the surge potion with the highlight color"
 	)
 	default boolean outlineSurgePotion() {
-		return false;
+		return true;
 	}
 
 	@ConfigItem(
